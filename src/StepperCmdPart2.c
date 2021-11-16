@@ -1,10 +1,10 @@
 /**************************************************************************
-* File Name         StepperCmd.c
+* File Name         StepperCmdPart2.c
 * Description       Initializes stepper motor and makes it step by requested
 *                   number of steps and providing delay using interrupts.
 *				          
 * Date				          Name(s)						          Action
-* October 12, 2021		Jaskaran K. & David C.			First Implementation
+* November 3rd, 2021		Jaskaran K. & David C.			First Implementation
 ***************************************************************************/
 
 /**************************************************************************
@@ -85,7 +85,7 @@ T_NODE *head = NULL;
 ---------------------------------------------------------------------------*/
 ParserReturnVal_t StepperInitialize()
 {
-  
+  // GPIO Output pins initialization
   GPIO_InitTypeDef My_GPIO_InitStructA = {0};
   GPIO_InitTypeDef My_GPIO_InitStructB = {0};
   GPIO_InitTypeDef My_GPIO_InitStructC = {0};  
@@ -109,7 +109,6 @@ ParserReturnVal_t StepperInitialize()
     My_GPIO_InitStructA.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOA, &My_GPIO_InitStructA);
   }
-  
 
   if(My_GPIO_InitStructB.Pin != 0){
     My_GPIO_InitStructB.Mode = GPIO_MODE_OUTPUT_PP;
@@ -351,10 +350,10 @@ ParserReturnVal_t PrintQueue(int action)
 ADD_CMD("printqueue", PrintQueue, "\t\tPrints the elements in the queue")
 
 /*--------------------------------------------------------------------------
-*	Name:			    VirtualTimers
-*	Description:	interrupt routine to update all virtual timers as well as 
-*               their corresponding GPIO pins
-*	Parameters:		void
+*	Name:			    ProcessQueue
+*	Description:	Iterate through all the elements in the queue and performs 
+*               desired action for the current enabled instruction.
+*	Parameters:		T_NODE **head, pointer to the head pointer in the linked list
 *
 *	Returns:		  void
 ---------------------------------------------------------------------------*/
@@ -410,21 +409,3 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim){
   //VirtualTimers();
   ProcessQueue(&head);
 }
-
-/*--------------------------------------------------------------------------
-*	Name:			    StepReset
-*	Description:	Reset the queue of timers
-*	Parameters:		void
-*
-*	Returns:		ret: CmdReturnOk = 0 if Okay.
----------------------------------------------------------------------------*/
-ParserReturnVal_t StepReset(int action)
-{ 
-  
-  HAL_GPIO_WritePin(STEP_PORT, STEP_PIN, GPIO_PIN_RESET);
-
-  return CmdReturnOk;
-}
-
-// MACRO: Add new command to help menu
-ADD_CMD("stepreset", StepReset, "\t\tReset the queue of timers")
